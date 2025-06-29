@@ -40,12 +40,7 @@ git clone https://github.com/SplatTB29/Monopoly-terminal.git
 cd Monopoly-terminal
 ```
 
-2. Zum dev Branch wechseln (wichtig!):
-```bash
-git checkout dev
-```
-
-3. Erforderliche Abhängigkeiten installieren:
+2. Erforderliche Abhängigkeiten installieren:
 ```bash
 pip install -r requirements.txt
 ```
