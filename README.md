@@ -1,2 +1,3 @@
-# Monopoly-Web
-Our Monopoly game hosted on a webserver to be played on a website.
+## *Monopoly Web Spiel*
+
+Eine Web-basierte Implementierung des klassischen Monopoly Brettspiels
