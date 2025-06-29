@@ -1,6 +1,10 @@
-## *Monopoly Terminal Spiel*
+## *Monopoly Terminal Spiel (FORK)*
 
 Eine Terminal-basierte Implementierung des klassischen Monopoly Brettspiels
+
+
+
+(Original: https://github.com/SplatTB29/Monopoly-terminal)
 
 ## *Beschreibung*
 
