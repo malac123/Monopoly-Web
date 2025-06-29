@@ -1,10 +1,6 @@
-## *Monopoly Terminal Spiel (FORK)*
+## *Monopoly Terminal Spiel*
 
 Eine Terminal-basierte Implementierung des klassischen Monopoly Brettspiels
-
-
-
-(Original: https://github.com/SplatTB29/Monopoly-terminal)
 
 ## *Beschreibung*
 
@@ -44,7 +40,12 @@ git clone https://github.com/SplatTB29/Monopoly-terminal.git
 cd Monopoly-terminal
 ```
 
-2. Erforderliche Abhängigkeiten installieren:
+2. Zum dev Branch wechseln (wichtig!):
+```bash
+git checkout dev
+```
+
+3. Erforderliche Abhängigkeiten installieren:
 ```bash
 pip install -r requirements.txt
 ```
@@ -120,6 +121,7 @@ Häufige Probleme und Lösungen:
    - Python-Version (am besten 3.6 oder höher)
    - alle Abhängigkeiten neu installieren (requirments.txt)
 
+
 ## *Mitwirken*
 
 Wer will kann das Spiel gerne erweitern:
@@ -129,6 +131,12 @@ Wer will kann das Spiel gerne erweitern:
 
 ## *Team*
 
-- Ivano
+- Ivano P.
 - Liam H.
 - Liam L.
+
+
+## *MEMES*
+![A Meme](https://github.com/SplatTB29/Monopoly-terminal/blob/main/memes/meme.png?raw=true)
+![Another Meme](https://github.com/SplatTB29/Monopoly-terminal/blob/main/memes/meme2.png?raw=true)
+![Another Meme](https://github.com/SplatTB29/Monopoly-terminal/blob/main/memes/meme3.png?raw=true)

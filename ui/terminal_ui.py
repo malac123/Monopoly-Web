@@ -354,11 +354,9 @@ def handle_station(player, current_space, game, player_color):
                     player.properties.append(current_space)
                     current_space.owner = player
                     print(Fore.GREEN + f"{player_color}{player.name}{Fore.RESET} hat {current_space.name} gekauft!")
-                    wait()
                     break
                 else:
                     print(Fore.RED + "Nicht genug Geld, um diesen Bahnhof zu kaufen.")
-                    wait()
                     break
             elif buy_choice.lower() == "n":
                 break
