@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monopoly Webspiel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        #game-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        #board {
+            width: 600px;
+            height: 600px;
+            background-color: white;
+            border: 2px solid #333;
+            position: relative;
+            background-image: url('https://example.com/monopoly-board.jpg');
+            background-size: cover;
+        }
+        
+        #players-panel {
+            width: 300px;
+            padding: 20px;
+            background-color: #fff;
+            margin-left: 20px;
+            border: 1px solid #ccc;
+        }
+        
+        .player {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        #controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .dice {
+            font-size: 24px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Monopoly Webspiel</h1>
+    
+    <div id="game-container">
+        <div id="board">
+            <!-- Spieler-Token werden hier platziert -->
+            <div class="token" style="top: 550px; left: 550px; background-color: red;"></div>
+        </div>
+        
+        <div id="players-panel">
+            <h2>Spieler</h2>
+            <div class="player" style="background-color: #ffcccc;">
+                <h3>Spieler 1 (Rot)</h3>
+                <p>Geld: €1500</p>
+                <p>Straßen: Badstraße, Turmstraße</p>
+            </div>
+            <div class="player" style="background-color: #ccccff;">
+                <h3>Spieler 2 (Blau)</h3>
+                <p>Geld: €1400</p>
+                <p>Straßen: Chausseestraße</p>
+            </div>
+            
+            <div id="controls">
+                <div class="dice">Würfel: <span id="dice-result">-</span></div>
+                <button onclick="rollDice()">Würfeln</button>
+                <button onclick="endTurn()">Zug beenden</button>
+                <button onclick="buyProperty()">Straße kaufen</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Einfache Spiel-Logik
+        function rollDice() {
+            const dice1 = Math.floor(Math.random() * 6) + 1;
+            const dice2 = Math.floor(Math.random() * 6) + 1;
+            const total = dice1 + dice2;
+            
+            document.getElementById('dice-result').textContent = `${dice1} + ${dice2} = ${total}`;
+            
+            // Hier würde die Spielfigur bewegt werden
+            alert(`Du bist ${total} Felder vorgerückt!`);
+        }
+        
+        function endTurn() {
+            alert('Zug beendet. Nächster Spieler ist dran!');
+        }
+        
+        function buyProperty() {
+            alert('Straße gekauft!');
+        }
+    </script>
+</body>
+</html>
