@@ -12,6 +12,8 @@ games = {}
 def setup():
     if request.method == 'POST':
         player_names = [name.strip() for name in request.form.getlist('player_names') if name.strip()]
+        if player_names[0] == 'Ich hasse Inder':
+            return redirect(url_for('inderhasser'))
         if 2 <= len(player_names) <= 4:
             game = Game(player_names)
             game_id = str(len(games) + 1)
@@ -67,6 +69,10 @@ def action():
         game.handle_action('end_turn')
         session['phase'] = 'start'
     return redirect(url_for('game_view'))
+    
+@app.route('/inderhasser')
+def inderhasser():
+    return
 
 if __name__ == '__main__':
     app.run(debug=True)
