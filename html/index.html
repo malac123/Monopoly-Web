@@ -3,114 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monopoly Webspiel</title>
+    <title>Einfaches Monopoly</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        #game-container {
-            display: flex;
-            max-width: 1200px;
+            font-family: monospace;
+            max-width: 800px;
             margin: 0 auto;
-        }
-        
-        #board {
-            width: 600px;
-            height: 600px;
-            background-color: white;
-            border: 2px solid #333;
-            position: relative;
-            background-image: url('https://example.com/monopoly-board.jpg');
-            background-size: cover;
-        }
-        
-        #players-panel {
-            width: 300px;
             padding: 20px;
-            background-color: #fff;
-            margin-left: 20px;
-            border: 1px solid #ccc;
+            background-color: #f0f8ff;
         }
-        
-        .player {
-            margin-bottom: 15px;
+        #game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #game-board {
+            margin-bottom: 20px;
             padding: 10px;
+            background-color: #e9f7ef;
             border-radius: 5px;
         }
-        
         #controls {
-            margin-top: 20px;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        
         button {
             padding: 10px 20px;
-            margin: 5px;
             font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
-        
-        .dice {
+        #dice-result {
+            text-align: center;
             font-size: 24px;
-            margin: 10px;
+            margin: 20px 0;
+        }
+        #game-log {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
-    <h1>Monopoly Webspiel</h1>
-    
     <div id="game-container">
-        <div id="board">
-            <!-- Spieler-Token werden hier platziert -->
-            <div class="token" style="top: 550px; left: 550px; background-color: red;"></div>
+        <div id="game-header">
+            <h1>♟️ Einfaches Monopoly</h1>
         </div>
         
-        <div id="players-panel">
-            <h2>Spieler</h2>
-            <div class="player" style="background-color: #ffcccc;">
-                <h3>Spieler 1 (Rot)</h3>
-                <p>Geld: €1500</p>
-                <p>Straßen: Badstraße, Turmstraße</p>
-            </div>
-            <div class="player" style="background-color: #ccccff;">
-                <h3>Spieler 2 (Blau)</h3>
-                <p>Geld: €1400</p>
-                <p>Straßen: Chausseestraße</p>
-            </div>
-            
-            <div id="controls">
-                <div class="dice">Würfel: <span id="dice-result">-</span></div>
-                <button onclick="rollDice()">Würfeln</button>
-                <button onclick="endTurn()">Zug beenden</button>
-                <button onclick="buyProperty()">Straße kaufen</button>
-            </div>
+        <div id="game-board">
+            <h3>Spielstand:</h3>
+            <pre id="board-state">Lade Spiel...</pre>
+        </div>
+        
+        <div id="dice-result">🎲 -</div>
+        
+        <div id="controls">
+            <button onclick="rollDice()">Würfeln</button>
+            <button onclick="endTurn()">Zug beenden</button>
+            <button onclick="buyProperty()">Kaufen</button>
+        </div>
+        
+        <div>
+            <h3>Spielverlauf:</h3>
+            <div id="game-log"></div>
         </div>
     </div>
-    
+
     <script>
-        // Einfache Spiel-Logik
+        // Einfache Spielzustände
+        const players = [
+            { name: "Spieler 1", money: 1500, position: 0 },
+            { name: "Spieler 2", money: 1500, position: 0 }
+        ];
+        
+        let currentPlayer = 0;
+        const gameLog = [];
+
+        // Initialisierung
+        function initGame() {
+            updateBoard();
+            addToLog("Spiel gestartet!");
+        }
+
+        // Würfelfunktion
         function rollDice() {
             const dice1 = Math.floor(Math.random() * 6) + 1;
             const dice2 = Math.floor(Math.random() * 6) + 1;
             const total = dice1 + dice2;
             
-            document.getElementById('dice-result').textContent = `${dice1} + ${dice2} = ${total}`;
+            document.getElementById('dice-result').textContent = `🎲 ${dice1} + ${dice2} = ${total}`;
             
-            // Hier würde die Spielfigur bewegt werden
-            alert(`Du bist ${total} Felder vorgerückt!`);
+            // Spieler bewegen
+            players[currentPlayer].position = (players[currentPlayer].position + total) % 40;
+            addToLog(`${players[currentPlayer].name} ist ${total} Felder vorgerückt!`);
+            
+            updateBoard();
         }
-        
+
+        // Zug beenden
         function endTurn() {
-            alert('Zug beendet. Nächster Spieler ist dran!');
+            currentPlayer = (currentPlayer + 1) % players.length;
+            addToLog(`🔁 ${players[currentPlayer].name} ist am Zug`);
+            document.getElementById('dice-result').textContent = '🎲 -';
+            updateBoard();
         }
-        
+
+        // Eigenschaft kaufen
         function buyProperty() {
-            alert('Straße gekauft!');
+            addToLog(`🏠 ${players[currentPlayer].name} hat eine Straße gekauft!`);
+            players[currentPlayer].money -= 200;
+            updateBoard();
         }
+
+        // Spielbrett aktualisieren
+        function updateBoard() {
+            const boardElement = document.getElementById('board-state');
+            boardElement.innerHTML = '';
+            
+            players.forEach((player, index) => {
+                const playerInfo = 
+                    `${index === currentPlayer ? '> ' : '  '}${player.name}: 
+                    €${player.money} | Position: ${player.position}`;
+                
+                const p = document.createElement('p');
+                p.textContent = playerInfo;
+                boardElement.appendChild(p);
+            });
+        }
+
+        // Spielverlauf aktualisieren
+        function addToLog(message) {
+            const logElement = document.getElementById('game-log');
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // Spiel starten
+        window.onload = initGame;
     </script>
 </body>
 </html>
