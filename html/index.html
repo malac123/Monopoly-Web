@@ -3,156 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Einfaches Monopoly</title>
+    <title>Monopoly Webspiel</title>
     <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
         body {
-            font-family: monospace;
+            background: #0a1929;
+            color: #e0f7fa;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f0f8ff;
         }
-        #game-container {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        #game-header {
+        header {
             text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #4fc3f7;
             margin-bottom: 20px;
         }
-        #game-board {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #e9f7ef;
-            border-radius: 5px;
+        h1 {
+            color: #4fc3f7;
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 0 0 5px rgba(79, 195, 247, 0.5);
         }
-        #controls {
+        .game-area {
             display: flex;
-            justify-content: center;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 20px;
             margin-bottom: 20px;
+        }
+        .panel {
+            background: #1a3a5f;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        .game-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        .player-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        .controls {
+            flex: 100%;
+            text-align: center;
+            padding: 15px;
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
+            background: #0288d1;
             color: white;
             border: none;
+            padding: 12px 25px;
+            margin: 5px;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: bold;
         }
-        #dice-result {
+        button:hover {
+            background: #039be5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #diceResult {
+            font-size: 2rem;
+            margin: 15px 0;
+            min-height: 60px;
             text-align: center;
-            font-size: 24px;
-            margin: 20px 0;
         }
-        #game-log {
+        .player {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background: rgba(2, 136, 209, 0.2);
+        }
+        .current {
+            background: rgba(255, 215, 0, 0.3);
+            border: 1px solid gold;
+        }
+        .log {
+            background: #0d2b4a;
+            border-radius: 10px;
+            padding: 15px;
             height: 200px;
             overflow-y: auto;
-            background-color: #f8f8f8;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #1a3a5f;
+        }
+        .player-name {
+            font-weight: bold;
+        }
+        .player-1 { color: #4fc3f7; }
+        .player-2 { color: #ef5350; }
+        .player-3 { color: #66bb6a; }
+        .player-4 { color: #ffee58; }
+        .property {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="game-header">
-            <h1>♟️ Einfaches Monopoly</h1>
+    <div class="container">
+        <header>
+            <h1>🎲 MONOPOLY 🏠</h1>
+        </header>
+        
+        <div class="game-area">
+            <div class="panel game-info">
+                <h2>Spielinformation</h2>
+                <div id="currentPlayerInfo"></div>
+                <div id="currentSpaceInfo"></div>
+                <div id="diceResult"></div>
+                <div id="propertyDetails"></div>
+            </div>
+            
+            <div class="panel player-info">
+                <h2>Spieler</h2>
+                <div id="playersList"></div>
+            </div>
+            
+            <div class="panel controls">
+                <button id="rollBtn">Würfeln</button>
+                <button id="buyBtn">Kaufen</button>
+                <button id="endTurnBtn">Zug beenden</button>
+                <button id="houseBtn">Haus bauen</button>
+            </div>
         </div>
         
-        <div id="game-board">
-            <h3>Spielstand:</h3>
-            <pre id="board-state">Lade Spiel...</pre>
-        </div>
-        
-        <div id="dice-result">🎲 -</div>
-        
-        <div id="controls">
-            <button onclick="rollDice()">Würfeln</button>
-            <button onclick="endTurn()">Zug beenden</button>
-            <button onclick="buyProperty()">Kaufen</button>
-        </div>
-        
-        <div>
-            <h3>Spielverlauf:</h3>
-            <div id="game-log"></div>
+        <div class="panel log">
+            <h2>Spielverlauf</h2>
+            <div id="gameLog"></div>
         </div>
     </div>
 
     <script>
-        // Einfache Spielzustände
+        // Spielzustände
         const players = [
-            { name: "Spieler 1", money: 1500, position: 0 },
-            { name: "Spieler 2", money: 1500, position: 0 }
+            { id: 1, name: "Spieler 1", money: 1500, position: 0, properties: [], color: "player-1" },
+            { id: 2, name: "Spieler 2", money: 1500, position: 0, properties: [], color: "player-2" }
         ];
         
-        let currentPlayer = 0;
-        const gameLog = [];
+        const board = [
+            { name: "Los", type: "special", amount: 200 },
+            { name: "Badstraße", type: "property", cost: 60, rent: 2, owner: null },
+            { name: "Gemeinschaftsfeld", type: "special" },
+            { name: "Turmstraße", type: "property", cost: 60, rent: 4, owner: null },
+            { name: "Einkommensteuer", type: "tax", amount: 200 },
+            { name: "Südbahnhof", type: "station", cost: 200, base_rent: 25, owner: null },
+            { name: "Chausseestraße", type: "property", cost: 100, rent: 6, owner: null },
+            { name: "Ereignisfeld", type: "special" },
+            { name: "Elisenstraße", type: "property", cost: 100, rent: 6, owner: null },
+            { name: "Poststraße", type: "property", cost: 120, rent: 8, owner: null },
+            { name: "Gefängnis", type: "jail" },
+            // Weitere Felder hier ergänzen...
+        ];
+        
+        let currentPlayerIndex = 0;
+        let gameLog = [];
+        let currentDiceRoll = 0;
+        let currentProperty = null;
 
         // Initialisierung
         function initGame() {
-            updateBoard();
+            updatePlayerList();
+            updateCurrentPlayerInfo();
             addToLog("Spiel gestartet!");
         }
 
-        // Würfelfunktion
+        // Würfeln
         function rollDice() {
             const dice1 = Math.floor(Math.random() * 6) + 1;
             const dice2 = Math.floor(Math.random() * 6) + 1;
-            const total = dice1 + dice2;
+            currentDiceRoll = dice1 + dice2;
             
-            document.getElementById('dice-result').textContent = `🎲 ${dice1} + ${dice2} = ${total}`;
+            const diceResult = document.getElementById('diceResult');
+            diceResult.innerHTML = `🎲 Würfel: ${dice1} + ${dice2} = <strong>${currentDiceRoll}</strong>`;
             
-            // Spieler bewegen
-            players[currentPlayer].position = (players[currentPlayer].position + total) % 40;
-            addToLog(`${players[currentPlayer].name} ist ${total} Felder vorgerückt!`);
-            
-            updateBoard();
+            movePlayer(currentDiceRoll);
         }
 
-        // Zug beenden
-        function endTurn() {
-            currentPlayer = (currentPlayer + 1) % players.length;
-            addToLog(`🔁 ${players[currentPlayer].name} ist am Zug`);
-            document.getElementById('dice-result').textContent = '🎲 -';
-            updateBoard();
+        // Spieler bewegen
+        function movePlayer(steps) {
+            const player = players[currentPlayerIndex];
+            player.position = (player.position + steps) % board.length;
+            
+            const space = board[player.position];
+            addToLog(`${player.name} ist auf ${space.name} gelandet`);
+            
+            updateCurrentPlayerInfo();
+            showSpaceInfo(space);
+            
+            if (space.type === "property" || space.type === "station") {
+                currentProperty = space;
+                if (space.owner === null) {
+                    document.getElementById('buyBtn').disabled = false;
+                } else if (space.owner !== player) {
+                    payRent(space);
+                }
+            }
         }
 
         // Eigenschaft kaufen
         function buyProperty() {
-            addToLog(`🏠 ${players[currentPlayer].name} hat eine Straße gekauft!`);
-            players[currentPlayer].money -= 200;
-            updateBoard();
+            const player = players[currentPlayerIndex];
+            const space = board[player.position];
+            
+            if (space.owner === null && player.money >= space.cost) {
+                player.money -= space.cost;
+                space.owner = player;
+                player.properties.push(space);
+                
+                addToLog(`${player.name} hat ${space.name} für €${space.cost} gekauft`);
+                document.getElementById('buyBtn').disabled = true;
+                
+                updatePlayerList();
+                updateCurrentPlayerInfo();
+            }
         }
 
-        // Spielbrett aktualisieren
-        function updateBoard() {
-            const boardElement = document.getElementById('board-state');
-            boardElement.innerHTML = '';
+        // Miete zahlen
+        function payRent(space) {
+            const player = players[currentPlayerIndex];
+            const owner = space.owner;
+            const rent = space.rent || space.base_rent;
+            
+            player.money -= rent;
+            owner.money += rent;
+            
+            addToLog(`${player.name} zahlt ${owner.name} €${rent} Miete für ${space.name}`);
+            
+            updatePlayerList();
+            updateCurrentPlayerInfo();
+        }
+
+        // Zug beenden
+        function endTurn() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            document.getElementById('diceResult').innerHTML = "";
+            document.getElementById('propertyDetails').innerHTML = "";
+            document.getElementById('buyBtn').disabled = true;
+            
+            updateCurrentPlayerInfo();
+            addToLog(`🔁 ${players[currentPlayerIndex].name} ist am Zug`);
+        }
+
+        // Spielerliste aktualisieren
+        function updatePlayerList() {
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = '';
             
             players.forEach((player, index) => {
-                const playerInfo = 
-                    `${index === currentPlayer ? '> ' : '  '}${player.name}: 
-                    €${player.money} | Position: ${player.position}`;
+                const playerElement = document.createElement('div');
+                playerElement.className = `player ${player.color} ${index === currentPlayerIndex ? 'current' : ''}`;
                 
-                const p = document.createElement('p');
-                p.textContent = playerInfo;
-                boardElement.appendChild(p);
+                let propertiesHtml = '';
+                player.properties.forEach(prop => {
+                    propertiesHtml += `<div class="property">${prop.name} (€${prop.rent})</div>`;
+                });
+                
+                playerElement.innerHTML = `
+                    <div class="player-name">${player.name}</div>
+                    <div>Geld: €${player.money}</div>
+                    <div>Position: ${board[player.position].name}</div>
+                    <div>Eigenschaften: ${player.properties.length}</div>
+                    ${propertiesHtml}
+                `;
+                
+                playersList.appendChild(playerElement);
             });
         }
 
-        // Spielverlauf aktualisieren
+        // Aktueller Spielerinfo
+        function updateCurrentPlayerInfo() {
+            const player = players[currentPlayerIndex];
+            const playerInfo = document.getElementById('currentPlayerInfo');
+            
+            playerInfo.innerHTML = `
+                <div class="${player.color}" style="font-size: 1.2rem; margin-bottom: 10px;">
+                    <strong>Aktueller Spieler: ${player.name}</strong>
+                </div>
+                <div>Geld: €${player.money}</div>
+                <div>Position: ${board[player.position].name}</div>
+            `;
+        }
+
+        // Feldinformation anzeigen
+        function showSpaceInfo(space) {
+            const spaceInfo = document.getElementById('currentSpaceInfo');
+            const propertyDetails = document.getElementById('propertyDetails');
+            
+            spaceInfo.innerHTML = `<div>Feld: <strong>${space.name}</strong> (${getSpaceType(space.type)})</div>`;
+            propertyDetails.innerHTML = '';
+            
+            if (space.type === "property" || space.type === "station") {
+                let details = '';
+                
+                if (space.owner) {
+                    details = `<div>Besitzer: <span class="${space.owner.color}">${space.owner.name}</span></div>`;
+                    if (space.owner !== players[currentPlayerIndex]) {
+                        details += `<div>Miete: €${space.rent || space.base_rent}</div>`;
+                    }
+                } else {
+                    details = `<div>Preis: €${space.cost}</div>`;
+                }
+                
+                propertyDetails.innerHTML = details;
+            }
+        }
+
+        // Feldtyp übersetzen
+        function getSpaceType(type) {
+            const types = {
+                "property": "Grundstück",
+                "station": "Bahnhof",
+                "special": "Sonderfeld",
+                "tax": "Steuer",
+                "jail": "Gefängnis"
+            };
+            return types[type] || type;
+        }
+
+        // Spielverlauf hinzufügen
         function addToLog(message) {
-            const logElement = document.getElementById('game-log');
+            const logElement = document.getElementById('gameLog');
             const entry = document.createElement('div');
+            entry.className = 'log-entry';
             entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
             logElement.appendChild(entry);
             logElement.scrollTop = logElement.scrollHeight;
         }
+
+        // Event Listener
+        document.getElementById('rollBtn').addEventListener('click', rollDice);
+        document.getElementById('buyBtn').addEventListener('click', buyProperty);
+        document.getElementById('endTurnBtn').addEventListener('click', endTurn);
+        document.getElementById('houseBtn').addEventListener('click', () => {
+            addToLog("Hausbau-Funktion würde hier implementiert werden");
+        });
 
         // Spiel starten
         window.onload = initGame;
