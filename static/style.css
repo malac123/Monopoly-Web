@@ -152,3 +152,8 @@ button:hover {
     transform: translateY(-2px); /* Leichter "Schweb"-Effekt */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Schattierung */
 }
+
+
+centered-content {
+    text-align: center;      /* Zentriert den Text im Container */
+}

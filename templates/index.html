@@ -5,18 +5,15 @@
     <title>Monopoly Webspiel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <h2>Name: {{ user_name }}</h2>
-    <h2>Alter: {{ user_age }}</h2>
-
+<body class="centered-content">
+    <h1>Wilkommen</h1>
+    <h2>{{user_name}}</h2>
     <form method="POST">
-        <label for="age">Alter:</label>
-        <input type="number" id="age" name="age" min="0" value="{{ user_age }}" required><br>
-
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" value="{{ user_name }}" required><br>
 
         <button type="submit">Aktualisieren</button>
     </form>
+    <button onclick="window.location.href='/mainpage';">Zur nächsten Seite</button>
 </body>
 </html>
