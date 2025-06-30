@@ -1,22 +1,19 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-first_launch = True 
+user_age = 25
+user_name = "Unknown"
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    global first_launch
-    
-    if first_launch:
-        user = "Ivano"
-        first_launch = False
-    else:
-        user = "Liam"
-        first_launch = True
+    global user_age, user_name
 
-        
-    return render_template('index.html', user=user)
+    if request.method == 'POST':
+        user_age = int(request.form.get('age', user_age))
+        user_name = request.form.get('name', user_name)
+
+    return render_template('index.html', user_age=user_age, user_name=user_name)
 
 if __name__ == '__main__':
     app.run(debug=True)

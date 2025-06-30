@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>Monopoly Webspiel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>{{user}}!</h1>
-    <button onclick="window.location.reload()">Seite neu laden</button>
+    <h2>Name: {{ user_name }}</h2>
+    <h2>Alter: {{ user_age }}</h2>
+
+    <form method="POST">
+        <label for="age">Alter:</label>
+        <input type="number" id="age" name="age" min="0" value="{{ user_age }}" required><br>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ user_name }}" required><br>
+
+        <button type="submit">Aktualisieren</button>
+    </form>
 </body>
 </html>
-
-
-  
