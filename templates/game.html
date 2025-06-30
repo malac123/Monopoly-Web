@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>Monopoly Webspiel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Monopoly Webspiel</h1>
+        </header>
+        <div class="game-area">
+            <div class="panel game-info">
+                <h2>Spielbrett</h2>
+                <div>
+                    {% for idx, space in enumerate(game.board.spaces) %}
+                        <span class="property">{{ space.name }}{% if space.owner %} ({{ space.owner.name }}){% endif %}</span>{% if (idx+1) % 10 == 0 %}<br>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="panel player-info">
+                <h2>Spieler</h2>
+                {% for player in game.players %}
+                    <div class="player{% if loop.index0 == game.current_player_idx %} current{% endif %}">
+                        <span class="player-name">{{ player.name }}</span> - €{{ player.money }} - Pos: {{ player.position }}
+                        {% if player.in_jail %}<span> (Gefängnis)</span>{% endif %}
+                        <div>Grundstücke: {% for prop in player.properties %}{{ prop.name }}{% if not loop.last %}, {% endif %}{% endfor %}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if game.message %}
+            <div class="log-entry">{{ game.message }}</div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('action') }}" class="controls">
+            <button type="submit" name="action" value="roll">Würfeln</button>
+            <button type="submit" name="action" value="buy">Kaufen</button>
+            <button type="submit" name="action" value="end_turn">Zug beenden</button>
+        </form>
+    </div>
+</body>
+</html> 
