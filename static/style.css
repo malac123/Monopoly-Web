@@ -105,3 +105,50 @@ button:hover {
     margin: 5px 0;
     border-radius: 4px;
 }
+
+input[type="number"], input[type="text"] {
+    width: 300px;                /* Breite */
+    padding: 12px;               /* Innenabstand */
+    margin: 10px 0;              /* Abstand zwischen den Feldern */
+    border: 2px solid #0288d1;   /* Blau für den Rand */
+    border-radius: 5px;          /* Abgerundete Ecken */
+    font-size: 16px;             /* Schriftgröße */
+    background-color: #1a3a5f;   /* Dunkelblauer Hintergrund */
+    color: #e0f7fa;              /* Helle Textfarbe */
+}
+
+/* Wenn das Input-Feld fokussiert wird */
+input[type="number"]:focus, input[type="text"]:focus {
+    border-color: #039be5;       /* Helleres Blau beim Fokussieren */
+    background-color: #2a4a6e;   /* Etwas helleres Blau beim Fokussieren */
+    outline: none;               /* Keine zusätzliche Umrandung */
+}
+
+/* Styling für die Labels */
+label {
+    font-size: 14px;             /* Schriftgröße für Labels */
+    font-weight: bold;           /* Fettdruck */
+    display: block;              /* Labels als Blockelement */
+    margin-bottom: 5px;          /* Abstand unter dem Label */
+    color: #e0f7fa;              /* Helle Textfarbe */
+}
+
+/* Styling für den Submit-Button */
+button {
+    padding: 12px 25px;          /* Innenabstand */
+    font-size: 16px;             /* Schriftgröße */
+    background-color: #0288d1;   /* Hintergrundfarbe */
+    color: white;                /* Textfarbe */
+    border: none;                /* Kein Rand */
+    border-radius: 5px;          /* Abgerundete Ecken */
+    cursor: pointer;             /* Zeigt einen Zeiger-Cursor */
+    transition: all 0.3s ease;   /* Sanfte Übergänge für Hover-Effekte */
+    font-weight: bold;           /* Fettdruck für den Text */
+}
+
+/* Hover-Effekt für den Button */
+button:hover {
+    background-color: #039be5;   /* Farbänderung beim Hover */
+    transform: translateY(-2px); /* Leichter "Schweb"-Effekt */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Schattierung */
+}
