@@ -10,15 +10,67 @@
         <header>
             <h1>Monopoly Webspiel</h1>
         </header>
-        <div class="game-area">
-            <div class="panel game-info">
-                <h2>Spielbrett</h2>
-                <div>
-                    {% for idx, space in enumerate(game.board.spaces) %}
-                        <span class="property">{{ space.name }}{% if space.owner %} ({{ space.owner.name }}){% endif %}</span>{% if (idx+1) % 10 == 0 %}<br>{% endif %}
-                    {% endfor %}
-                </div>
+        <div class="board-container">
+            <div class="board-grid">
+                {% for field in game.board.spaces %}
+                    <div class="board-field{% if field.owner %} owned{% endif %}" title="{{ field.name }}">
+                        <span>{{ field.name[:4] }}{% if field.type == 'jail' %}🚓{% endif %}</span>
+                        <span class="tooltip">{{ field.name }}</span>
+                        {% for p in game.players %}
+                            {% if p.position == loop.index0 %}
+                                <span class="player-marker p{{ loop.index }}" title="{{ p.name }}">{{ p.name[0] }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
             </div>
+        </div>
+        <div class="actions-area">
+            <div class="controls">
+                {% if phase == 'jail_message' %}
+                    <div class="log-entry">{{ game.message }}</div>
+                    <form method="POST" action="{{ url_for('action') }}">
+                        <button type="submit" name="action" value="skip">Weiter</button>
+                    </form>
+                {% elif phase == 'start' %}
+                    <div class="log-entry">{{ game.current_player.name }}, du bist am Zug. Würfle!</div>
+                    <form method="POST" action="{{ url_for('action') }}">
+                        <button type="submit" name="action" value="roll">Würfeln</button>
+                    </form>
+                {% elif phase == 'after_roll' and can_buy %}
+                    <div class="log-entry">{{ game.current_player.name }}, möchtest du {{ game.board.get_space(game.current_player.position).name }} für €{{ game.board.get_space(game.current_player.position).cost }} kaufen?</div>
+                    <form method="POST" action="{{ url_for('action') }}" style="display:inline;">
+                        <button type="submit" name="action" value="buy">Kaufen</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('action') }}" style="display:inline;">
+                        <button type="submit" name="action" value="skip">Nicht kaufen</button>
+                    </form>
+                {% elif phase == 'after_roll' and not can_buy %}
+                    <div class="log-entry">
+                        {{ game.current_player.name }}, du bist auf <b>{{ game.board.get_space(game.current_player.position).name }}</b> gelandet.<br>
+                        {% set field = game.board.get_space(game.current_player.position) %}
+                        {% if field.type == 'jail' %}
+                            Du bist im Gefängnis und musst eine Runde aussetzen!
+                        {% elif field.type == 'tax' %}
+                            Steuerfeld – zahle {{ field.amount }}€!
+                        {% elif field.type == 'special' %}
+                            Spezialfeld – {{ field.description or 'Ziehe eine Karte oder erhalte Geld.' }}
+                        {% else %}
+                            Dieses Feld kann nicht gekauft werden.
+                        {% endif %}
+                    </div>
+                    <form method="POST" action="{{ url_for('action') }}">
+                        <button type="submit" name="action" value="skip">Weiter</button>
+                    </form>
+                {% else %}
+                    <div class="log-entry">Bitte warte auf deinen Zug.</div>
+                {% endif %}
+                {% if game.message and phase != 'jail_message' %}
+                    <div class="log-entry">{{ game.message }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="game-area">
             <div class="panel player-info">
                 <h2>Spieler</h2>
                 {% for player in game.players %}
@@ -30,14 +82,6 @@
                 {% endfor %}
             </div>
         </div>
-        {% if game.message %}
-            <div class="log-entry">{{ game.message }}</div>
-        {% endif %}
-        <form method="POST" action="{{ url_for('action') }}" class="controls">
-            <button type="submit" name="action" value="roll">Würfeln</button>
-            <button type="submit" name="action" value="buy">Kaufen</button>
-            <button type="submit" name="action" value="end_turn">Zug beenden</button>
-        </form>
     </div>
 </body>
 </html> 

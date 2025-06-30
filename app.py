@@ -29,7 +29,12 @@ def game_view():
     if not game_id or game_id not in games:
         return redirect(url_for('setup'))
     game = games[game_id]
-    return render_template('game.html', game=game)
+    phase = session.get('phase', 'start')
+    can_buy = False
+    if phase == 'after_roll':
+        space = game.board.get_space(game.current_player.position)
+        can_buy = hasattr(space, 'cost') and getattr(space, 'owner', None) is None
+    return render_template('game.html', game=game, phase=phase, can_buy=can_buy)
 
 @app.route('/action', methods=['POST'])
 def action():
@@ -38,7 +43,29 @@ def action():
         return redirect(url_for('setup'))
     game = games[game_id]
     action = request.form.get('action')
-    game.handle_action(action)
+    phase = session.get('phase', 'start')
+    if phase == 'start' and action == 'roll':
+        if game.current_player.in_jail:
+            game.message = f'{game.current_player.name} ist im Gefängnis und muss eine Runde aussetzen.'
+            game.current_player.in_jail = False
+            session['phase'] = 'jail_message'
+        else:
+            game.handle_action('roll')
+            space = game.board.get_space(game.current_player.position)
+            if hasattr(space, 'cost') and getattr(space, 'owner', None) is None:
+                session['phase'] = 'after_roll'
+            elif getattr(space, 'type', None) in ['property', 'utility', 'station'] and getattr(space, 'owner', None) and space.owner != game.current_player:
+                session['phase'] = 'after_roll'
+            else:
+                session['phase'] = 'after_roll'
+    elif phase == 'jail_message' and action == 'skip':
+        game.next_turn()
+        session['phase'] = 'start'
+    elif phase == 'after_roll':
+        if action == 'buy':
+            game.handle_action('buy')
+        game.handle_action('end_turn')
+        session['phase'] = 'start'
     return redirect(url_for('game_view'))
 
 if __name__ == '__main__':

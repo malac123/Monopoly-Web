@@ -1,0 +1,298 @@
+[
+    {
+      "name": "Bürgergeld",
+      "type": "special",
+      "amount": 500,
+      "description": "Ziehe 500€ Bürgergeld ein."
+    },
+    {
+      "name": "Aquapark",
+      "type": "property",
+      "cost": 70,
+      "rent": [3, 12, 36, 100, 180, 280],
+      "color_group": "brown",
+      "house_cost": 60
+    },
+    {
+      "name": "Die Tafel",
+      "type": "property",
+      "cost": 25,
+      "rent": [2, 12, 36, 100, 180, 280],
+      "color_group": "brown",
+      "house_cost": 60
+    },
+    {
+      "name": "Mannheimer Fernsehturm",
+      "type": "property",
+      "cost": 70,
+      "rent": [5, 24, 72, 200, 350, 500],
+      "color_group": "brown",
+      "house_cost": 60
+    },
+    {
+      "name": "Einkommensteuer",
+      "type": "tax",
+      "amount": 220,
+      "description": "Zahle 220€ Steuer."
+    },
+    {
+      "name": "Hauptbahnhof Berlin",
+      "type": "station",
+      "cost": 200,
+      "base_rent": 25,
+      "description": "Der größte Bahnhof Deutschlands."
+    },
+    {
+      "name": "Die Post",
+      "type": "property",
+      "cost": 120,
+      "rent": [8, 36, 110, 300, 440, 600],
+      "color_group": "light_blue",
+      "house_cost": 60
+    },
+    {
+      "name": "Existenzsteuer",
+      "type": "tax",
+      "amount": 280,
+      "description": "Zahle 280€ Existenzsteuer"
+    },
+    {
+      "name": "Wieslocher Schwimmbad",
+      "type": "property",
+      "cost": 140,
+      "rent": [10, 48, 120, 340, 500, 700],
+      "color_group": "light_blue",
+      "house_cost": 60
+    },
+    {
+      "name": "Gefängnis",
+      "type": "jail",
+      "description": "Nur zu Besuch. Du bist nicht inhaftiert."
+    },
+    {
+      "name": "Pizzeria in der Hauptstraße",
+      "type": "property",
+      "cost": 160,
+      "rent": [12, 60, 180, 500, 700, 850],
+      "color_group": "pink",
+      "house_cost": 110
+    },
+    {
+      "name": "Elektrizitätswerk",
+      "type": "utility",
+      "cost": 170,
+      "rent": [5, 12],
+      "description": "Miete ist 4x Würfelsumme (10x bei beiden Werken)."
+    },
+    {
+      "name": "Frankfurter Bahnhof",
+      "type": "station",
+      "cost": 200,
+      "base_rent": 25,
+      "description": "Berüchtigt für Verspätungen."
+    },
+    {
+      "name": "Parkplatz in Viernheim",
+      "type": "property",
+      "cost": 180,
+      "rent": [14, 70, 200, 550, 800, 1000],
+      "color_group": "pink",
+      "house_cost": 110
+    },
+    {
+      "name": "Technik Museum Sinsheim",
+      "type": "property",
+      "cost": 200,
+      "rent": [16, 80, 220, 600, 900, 1100],
+      "color_group": "orange",
+      "house_cost": 110
+    },
+    {
+      "name": "Rotlichtviertel",
+      "type": "property",
+      "cost": 170,
+      "rent": [15, 80, 220, 600, 900, 1100],
+      "color_group": "red",
+      "house_cost": 120
+    },
+    {
+      "name": "Hauptbahnhof Hamburg",
+      "type": "station",
+      "cost": 200,
+      "base_rent": 25,
+      "description": "Berühmt für Currywurst und Menschenmassen."
+    },
+    {
+      "name": "Seniorenheim",
+      "type": "property",
+      "cost": 220,
+      "rent": [18, 90, 250, 700, 950, 1200],
+      "color_group": "orange",
+      "house_cost": 110
+    },
+    {
+      "name": "Lotterie",
+      "type": "special",
+      "amount": 1100,
+      "description": "Ziehe 1100€ ein, wenn du über Los kommst."
+    },
+    {
+      "name": "BBBank Stadion",
+      "type": "property",
+      "cost": 250,
+      "rent": [20, 100, 280, 800, 1000, 1200],
+      "color_group": "red",
+      "house_cost": 170
+    },
+    {
+      "name": "Tower 69",
+      "type": "property",
+      "cost": 350,
+      "rent": [80, 180, 540, 1200, 1400, 1600],
+      "color_group": "gray",
+      "house_cost": 220
+    },
+    {
+      "name": "Rathaus",
+      "type": "property",
+      "cost": 250,
+      "rent": [20, 100, 280, 800, 1000, 1200],
+      "color_group": "red",
+      "house_cost": 170
+    },
+    {
+      "name": "Private Schule",
+      "type": "property",
+      "cost": 270,
+      "rent": [22, 120, 330, 850, 1100, 1300],
+      "color_group": "red",
+      "house_cost": 170
+    },
+    {
+      "name": "Wasserwerk",
+      "type": "utility",
+      "cost": 170,
+      "rent": [5, 12],
+      "description": "Miete ist 4x Würfelsumme (10x bei beiden Werken)."
+    },
+    {
+      "name": "Goethe Institut",
+      "type": "property",
+      "cost": 290,
+      "rent": [24, 130, 360, 900, 1100, 1300],
+      "color_group": "yellow",
+      "house_cost": 170
+    },
+    {
+      "name": "Gefängnis!",
+      "type": "jail",
+      "description": "Gehe direkt ins Gefängnis!"
+    },
+    {
+      "name": "Autobahngebührenstelle",
+      "type": "property",
+      "cost": 290,
+      "rent": [24, 130, 360, 900, 1100, 1300],
+      "color_group": "yellow",
+      "house_cost": 170
+    },
+    {
+      "name": "Hauptbahnhof München",
+      "type": "station",
+      "cost": 200,
+      "base_rent": 25,
+      "description": "Hier beginnt das Oktoberfest."
+    },
+    {
+      "name": "Döner Imbiss",
+      "type": "property",
+      "cost": 550,
+      "rent": [90, 440, 1300, 3000, 3700, 4400],
+      "color_group": "brown",
+      "house_cost": 440
+    },
+    {
+      "name": "Bürokratiestraße",
+      "type": "property",
+      "cost": 340,
+      "rent": [30, 150, 430, 1000, 1300, 1450],
+      "color_group": "green",
+      "house_cost": 220
+    },
+    {
+      "name": "Schwarzmarkt",
+      "type": "property",
+      "cost": 1100,
+      "rent": [120, 440, 1300, 3000, 3700, 4400],
+      "color_group": "green",
+      "house_cost": 440
+    },
+    {
+      "name": "Mietwohnung",
+      "type": "property",
+      "cost": 120,
+      "rent": [2, 3, 6, 12, 20, 40],
+      "color_group": "green",
+      "house_cost": 120
+    },
+    {
+      "name": "Öffentlicher Parkplatz",
+      "type": "property",
+      "cost": 350,
+      "rent": [10, 12, 14, 16, 18, 20],
+      "color_group": "green",
+      "house_cost": 220
+    },
+    {
+      "name": "Eigentumerwerbssteuer",
+      "type": "tax",
+      "amount": 55,
+      "description": "Zahle 55€ Steuer."
+    },
+    {
+      "name": "Bürgermeister Mansion",
+      "type": "property",
+      "cost": 3900,
+      "rent": [320, 500, 700, 1300, 1800, 2300],
+      "color_group": "blue",
+      "house_cost": 220
+    },
+    {
+      "name": "Mehrwertsteuer",
+      "type": "tax",
+      "amount": 25,
+      "description": "Zahle 25€ Steuer"
+    },
+    {
+      "name": "Gregorhausenplatz",
+      "type": "property",
+      "cost": 320,
+      "rent": [28, 150, 450, 1000, 1200, 1400],
+      "color_group": "blue",
+      "house_cost": 220
+    },
+    {
+      "name": "AH Kunsthalle",
+      "type": "property",
+      "cost": 300,
+      "rent": [25, 120, 350, 900, 1100, 1300],
+      "color_group": "blue",
+      "house_cost": 200
+    },
+    {
+      "name": "Studentenwohnheim",
+      "type": "property",
+      "cost": 150,
+      "rent": [7, 35, 100, 300, 500, 700],
+      "color_group": "pink",
+      "house_cost": 100
+    },
+    {
+      "name": "Marktplatz",
+      "type": "property",
+      "cost": 280,
+      "rent": [22, 110, 330, 800, 975, 1150],
+      "color_group": "yellow",
+      "house_cost": 150
+    }
+  ]

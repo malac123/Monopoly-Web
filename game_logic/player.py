@@ -7,7 +7,11 @@ class Player:
         self.in_jail = False
 
     def move(self, steps):
+        if self.in_jail:
+            self.in_jail = False
+            return False  # Skip turn if in jail
         self.position = (self.position + steps) % 40
+        return True
 
     def buy_property(self, property):
         if self.money >= property.cost:
@@ -18,12 +22,14 @@ class Player:
         return False
 
     def pay_rent(self, property):
-        rent_amount = property.rent[0] if isinstance(property.rent, list) else property.rent
-        if self.money >= rent_amount:
-            self.money -= rent_amount
-            property.owner.money += rent_amount
-        else:
-            self.declare_bankruptcy(property.owner)
+        if hasattr(property, 'rent') and hasattr(property, 'owner') and property.owner:
+            rent_amount = property.rent[0] if isinstance(property.rent, list) else property.rent
+            if self.money >= rent_amount:
+                self.money -= rent_amount
+                property.owner.money += rent_amount
+            else:
+                self.declare_bankruptcy(property.owner)
+        # else: do nothing for non-property fields
 
     def declare_bankruptcy(self, creditor=None):
         if creditor:

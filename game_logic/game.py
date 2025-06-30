@@ -47,17 +47,33 @@ class Game:
     def pay_rent(self):
         player = self.current_player
         space = self.board.get_space(player.position)
-        if hasattr(space, 'owner') and space.owner and space.owner != player:
+        # Only pay rent if this is a property and has an owner
+        if hasattr(space, 'rent') and hasattr(space, 'owner') and space.owner and space.owner != player:
             player.pay_rent(space)
             self.message = f'{player.name} hat Miete gezahlt.'
+        else:
+            self.message = ''
 
     def handle_action(self, action):
+        player = self.current_player
+        space = self.board.get_space(player.position)
         if action == 'roll':
             self.roll_dice()
             space = self.move_current_player()
-            if hasattr(space, 'owner') and space.owner and space.owner != self.current_player:
+            # Handle special fields
+            if getattr(space, 'type', None) == 'property' and getattr(space, 'owner', None) and space.owner != player:
                 self.pay_rent()
+            elif getattr(space, 'type', None) == 'tax':
+                player.money -= getattr(space, 'amount', 0)
+                self.message = f'{player.name} zahlt {getattr(space, "amount", 0)}€ Steuern.'
+            elif getattr(space, 'type', None) == 'special':
+                player.money += getattr(space, 'amount', 0)
+                self.message = f'{player.name} erhält {getattr(space, "amount", 0)}€.'
+            elif getattr(space, 'type', None) == 'jail':
+                player.in_jail = True
+                self.message = f'{player.name} ist im Gefängnis und muss eine Runde aussetzen.'
+            # Utility and station logic can be added here
         elif action == 'buy':
             self.buy_property()
-        elif action == 'end_turn':
+        elif action == 'end_turn' or action == 'skip':
             self.next_turn() 
