@@ -8,7 +8,11 @@ app.secret_key = os.urandom(24)
 # In-memory store for games (for demo; use DB for production)
 games = {}
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/setup', methods=['GET', 'POST'])
 def setup():
     if request.method == 'POST':
         player_names = [name.strip() for name in request.form.getlist('player_names') if name.strip()]
@@ -25,6 +29,7 @@ def setup():
             error = 'Bitte 2-4 Spielernamen eingeben.'
             return render_template('setup.html', error=error)
     return render_template('setup.html')
+
 
 @app.route('/game')
 def game_view():
@@ -71,11 +76,9 @@ def action():
         session['phase'] = 'start'
     return redirect(url_for('game_view'))
     
-@app.route('/inderhasser', methods=['GET', 'POST'])
+@app.route('/inderhasser')
 def inderhasser():
-    if request.method == 'POST':
-        user_name = request.form['name']
-        return render_template('mainpage.html', user_name=user_name)
+    return render_template('inderhasser.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
