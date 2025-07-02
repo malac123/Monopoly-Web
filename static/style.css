@@ -301,3 +301,16 @@ button:hover {
 .spacer {
     height: 501px;
 }
+
+.footer {
+    background-color: #0d2b4a;      /* Thanks GPT :) Adjusted position to flex and removed unnecessary attributes */
+    color: #fff;              
+    text-align: center;        
+    padding: 20px 10px;         
+    position: flex;             
+    bottom: 0;                 
+    left: 0;                   
+    width: 100%;                
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
