@@ -16,7 +16,7 @@ def index():
 def setup():
     if request.method == 'POST':
         player_names = [name.strip() for name in request.form.getlist('player_names') if name.strip()]
-        if player_names[0] == 'Ich hasse Inder':
+        if player_names and player_names[0] == 'Ich hasse Inder':
             player_names[0] = 'Schlechter Mensch'
             return redirect(url_for('inderhasser'))
         if 2 <= len(player_names) <= 4:
