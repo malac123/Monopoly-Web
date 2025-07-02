@@ -13,6 +13,7 @@ def setup():
     if request.method == 'POST':
         player_names = [name.strip() for name in request.form.getlist('player_names') if name.strip()]
         if player_names[0] == 'Ich hasse Inder':
+            player_names[0] = 'Schlechter Mensch'
             return redirect(url_for('inderhasser'))
         if 2 <= len(player_names) <= 4:
             game = Game(player_names)
@@ -70,9 +71,11 @@ def action():
         session['phase'] = 'start'
     return redirect(url_for('game_view'))
     
-@app.route('/inderhasser')
+@app.route('/inderhasser', methods=['GET', 'POST'])
 def inderhasser():
-    return
+    if request.method == 'POST':
+        user_name = request.form['name']
+        return render_template('mainpage.html', user_name=user_name)
 
 if __name__ == '__main__':
     app.run(debug=True)
