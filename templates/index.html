@@ -5,20 +5,18 @@
     <title>Monopoly Webspiel - Setup</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="centered-content">
     <div class="container">
         <header>
             <h1>Monopoly Webspiel</h1>
         </header>
-        <form method="POST">
-            <h2>Spieler hinzufügen (2-4):</h2>
-            {% for i in range(4) %}
-                <label for="player{{i}}">Spieler {{i+1}} Name:</label>
-                <input type="text" id="player{{i}}" name="player_names" maxlength="20"><br>
-            {% endfor %}
-            {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
-            <button type="submit">Spiel starten</button>
-        </form>
+        <img src="{{ url_for('static', filename='img/image.png') }}" alt="Wütender Mann" width="400"><br>
+        <br>
+        <button onclick="window.location.href='/setup';">Start The Game</button><br>
     </div>
+    <div class="spacer"></div>
+    <h2>Links:</h2>
+    <a href='https://github.com/malac123/Monopoly-Web.git' target="_blank">View Git Page</a>
+    <a href='https://trello.com/b/9UAyXhOK/monopoly-web-server-version' target="_blank">View Trello</a>
 </body>
 </html>
