@@ -3,7 +3,9 @@ from game_logic.game import Game
 import os
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.urandom(24) # Using os.urandom(24) generates a new secret key each time the application starts,
+                                #  which will invalidate all existing sessions. This means users will lose their game state on server restart.
+                                # For production, use an environment variable or configuration file: os.environ.get('SECRET_KEY')
 
 # In-memory store for games (for demo; use DB for production)
 games = {}
@@ -81,4 +83,6 @@ def inderhasser():
     return render_template('inderhasser.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)             # Run the app in debug mode // In production disable debug mode:
+                                    # debug_mode = os.environ.get('FLASK_ENV') == 'development'
+                                    # app.run(debug=debug_mode)

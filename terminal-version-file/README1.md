@@ -103,7 +103,7 @@ python main.py
 ## *Abhängigkeiten*
 
 - **colorama (0.4.3)**: Für die Farbunterstützung im Terminal
-- **pygame (2.0.1)**: gilt nur für die version im main branch
+- **pygame (2.0.1)**: xx
 
 ## *Fehlerbehebung*
 

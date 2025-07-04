@@ -23,7 +23,11 @@ class Player:
 
     def pay_rent(self, property):
         if hasattr(property, 'rent') and hasattr(property, 'owner') and property.owner:
-            rent_amount = property.rent[0] if isinstance(property.rent, list) else property.rent
+            if isinstance(property.rent, list):
+                houses = getattr(property, "houses", 0)
+                rent_amount = property.rent[min(houses, len(property.rent) - 1)]            # I think this is correct, but I'm not sure. Amount should be calculated based on number of housese on the property
+            else:
+                rent_amount = property.rent
             if self.money >= rent_amount:
                 self.money -= rent_amount
                 property.owner.money += rent_amount
