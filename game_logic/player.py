@@ -6,12 +6,8 @@ class Player:
         self.properties = []
         self.in_jail = False
 
-    def move(self, steps):
-        if self.in_jail:
-            self.in_jail = False
-            return False  # Skip turn if in jail
-        self.position = (self.position + steps) % 40
-        return True
+    def move(self, steps, board_size=40):
+        self.position = (self.position + steps) % board_size
 
     def buy_property(self, property):
         if self.money >= property.cost:
@@ -22,18 +18,17 @@ class Player:
         return False
 
     def pay_rent(self, property):
-        if hasattr(property, 'rent') and hasattr(property, 'owner') and property.owner:
-            if isinstance(property.rent, list):
-                houses = getattr(property, "houses", 0)
-                rent_amount = property.rent[min(houses, len(property.rent) - 1)]            # I think this is correct, but I'm not sure. Amount should be calculated based on number of housese on the property
-            else:
-                rent_amount = property.rent
-            if self.money >= rent_amount:
-                self.money -= rent_amount
-                property.owner.money += rent_amount
-            else:
-                self.declare_bankruptcy(property.owner)
-        # else: do nothing for non-property fields
+        if property.houses >= len(property.rent):
+            rent_amount = property.rent[-1]
+        else:
+            rent_amount = property.rent[property.houses]
+        if self.money >= rent_amount:
+            self.money -= rent_amount
+            property.owner.money += rent_amount
+            return True
+        else:
+            self.declare_bankruptcy(property.owner)
+            return False
 
     def declare_bankruptcy(self, creditor=None):
         if creditor:
@@ -45,7 +40,7 @@ class Player:
 
     def go_to_jail(self, board):
         for space in board.spaces:
-            if getattr(space, 'type', None) == 'jail':
+            if space.type == "jail":
                 self.position = board.spaces.index(space)
                 self.in_jail = True
 

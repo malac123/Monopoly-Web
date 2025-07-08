@@ -10,78 +10,110 @@
         <header>
             <h1>Monopoly Webspiel</h1>
         </header>
-        <div class="board-container">
-            <div class="board-grid">
-                {% for field in game.board.spaces %}
-                    <div class="board-field{% if field.owner %} owned{% endif %}" title="{{ field.name }}">
-                        <span>{{ field.name[:4] }}{% if field.type == 'jail' %}🚓{% endif %}</span>
-                        <span class="tooltip">{{ field.name }}</span>
-                        {% for p in game.players %}
-                            {% if p.position == loop.index0 %}
-                                <span class="player-marker p{{ loop.index }}" title="{{ p.name }}">{{ p.name[0] }}</span>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            </div>
+        <div id="game-area">
+            <div id="board"></div>
+            <div id="player-info"></div>
+            <div id="actions"></div>
+            <div id="game-error" style="color:red;"></div>
         </div>
-        <div class="actions-area">
-            <div class="controls">
-                {% if phase == 'jail_message' %}
-                    <div class="log-entry">{{ game.message }}</div>
-                    <form method="POST" action="{{ url_for('action') }}">
-                        <button type="submit" name="action" value="skip">Weiter</button>
-                    </form>
-                {% elif phase == 'start' %}
-                    <div class="log-entry">{{ game.current_player.name }}, du bist am Zug. Würfle!</div>
-                    <form method="POST" action="{{ url_for('action') }}">
-                        <button type="submit" name="action" value="roll">Würfeln</button>
-                    </form>
-                {% elif phase == 'after_roll' and can_buy %}
-                    <div class="log-entry">{{ game.current_player.name }}, möchtest du {{ game.board.get_space(game.current_player.position).name }} für €{{ game.board.get_space(game.current_player.position).cost }} kaufen?</div>
-                    <form method="POST" action="{{ url_for('action') }}" style="display:inline;">
-                        <button type="submit" name="action" value="buy">Kaufen</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('action') }}" style="display:inline;">
-                        <button type="submit" name="action" value="skip">Nicht kaufen</button>
-                    </form>
-                {% elif phase == 'after_roll' and not can_buy %}
-                    <div class="log-entry">
-                        {{ game.current_player.name }}, du bist auf <b>{{ game.board.get_space(game.current_player.position).name }}</b> gelandet.<br>
-                        {% set field = game.board.get_space(game.current_player.position) %}
-                        {% if field.type == 'jail' %}
-                            Du bist im Gefängnis und musst eine Runde aussetzen!
-                        {% elif field.type == 'tax' %}
-                            Steuerfeld – zahle {{ field.amount }}€!
-                        {% elif field.type == 'special' %}
-                            Spezialfeld – {{ field.description or 'Ziehe eine Karte oder erhalte Geld.' }}
-                        {% else %}
-                            Dieses Feld kann nicht gekauft werden.
-                        {% endif %}
-                    </div>
-                    <form method="POST" action="{{ url_for('action') }}">
-                        <button type="submit" name="action" value="skip">Weiter</button>
-                    </form>
-                {% else %}
-                    <div class="log-entry">Bitte warte auf deinen Zug.</div>
-                {% endif %}
-                {% if game.message and phase != 'jail_message' %}
-                    <div class="log-entry">{{ game.message }}</div>
-                {% endif %}
-            </div>
-        </div>
-        <div class="game-area">
-            <div class="panel player-info">
-                <h2>Spieler</h2>
-                {% for player in game.players %}
-                    <div class="player{% if loop.index0 == game.current_player_idx %} current{% endif %}">
-                        <span class="player-name">{{ player.name }}</span> - €{{ player.money }} - Pos: {{ player.position }}
-                        {% if player.in_jail %}<span> (Gefängnis)</span>{% endif %}
-                        <div>Grundstücke: {% for prop in player.properties %}{{ prop.name }}{% if not loop.last %}, {% endif %}{% endfor %}</div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+        <button onclick="window.location.href='/'">Zurück zum Start</button>
     </div>
+    <script src="{{ url_for('static', filename='game.js') }}"></script>
+    <script>
+    // --- Monopoly Game UI Logic ---
+    const gameId = sessionStorage.getItem('game_id');
+    if (!gameId) {
+        window.location.href = '/';
+    }
+    let gameState = null;
+    async function fetchGameState() {
+        const res = await fetch(`/api/game_state/${gameId}`);
+        if (!res.ok) {
+            document.getElementById('game-error').textContent = 'Spiel nicht gefunden.';
+            return;
+        }
+        gameState = await res.json();
+        renderBoard();
+        renderPlayers();
+        renderActions();
+    }
+    function renderBoard() {
+        const boardDiv = document.getElementById('board');
+        boardDiv.innerHTML = '<h2>Spielbrett</h2><div class="board-grid"></div>';
+        const grid = boardDiv.querySelector('.board-grid');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(10, 1fr)';
+        grid.style.gap = '2px';
+        gameState.board.forEach((space, i) => {
+            const field = document.createElement('div');
+            field.className = 'board-field' + (space.owner ? ' owned' : '');
+            field.title = space.name;
+            field.innerHTML = `<span>${space.name.slice(0,4)}${space.type==='jail'?'🚓':''}</span>`;
+            // Show player markers
+            gameState.players.forEach((p, idx) => {
+                if (p.position === i) {
+                    field.innerHTML += `<span class="player-marker p${idx+1}" title="${p.name}">${p.name[0]}</span>`;
+                }
+            });
+            grid.appendChild(field);
+        });
+    }
+    function renderPlayers() {
+        const infoDiv = document.getElementById('player-info');
+        infoDiv.innerHTML = '<h2>Spieler</h2>';
+        gameState.players.forEach((p, idx) => {
+            infoDiv.innerHTML += `<div class="player${idx === gameState.current_turn ? ' current' : ''}">
+                <span class="player-name">${p.name}</span> - €${p.money} - Pos: ${p.position}
+                ${p.in_jail ? '<span> (Gefängnis)</span>' : ''}
+                <div>Grundstücke: ${p.properties.join(', ')}</div>
+            </div>`;
+        });
+    }
+    function renderActions() {
+        const actionsDiv = document.getElementById('actions');
+        actionsDiv.innerHTML = '';
+        const currentPlayer = gameState.players[gameState.current_turn];
+        if (gameState.is_active) {
+            if (currentPlayer.name === gameState.current_player) {
+                actionsDiv.innerHTML += `<button onclick="rollDice()">Würfeln</button>`;
+                // Check if can buy property
+                const space = gameState.board[currentPlayer.position];
+                if (space.type === 'property' && !space.owner) {
+                    actionsDiv.innerHTML += `<button onclick="buyProperty()">Kaufen (${space.name} für €${space.cost})</button>`;
+                }
+                actionsDiv.innerHTML += `<button onclick="endTurn()">Zug beenden</button>`;
+            } else {
+                actionsDiv.innerHTML = 'Bitte warte auf deinen Zug.';
+            }
+        } else {
+            actionsDiv.innerHTML = 'Spiel beendet.';
+        }
+    }
+    async function rollDice() {
+        const res = await fetch('/api/roll_dice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ game_id: gameId })
+        });
+        await fetchGameState();
+    }
+    async function buyProperty() {
+        const res = await fetch('/api/buy_property', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ game_id: gameId })
+        });
+        await fetchGameState();
+    }
+    async function endTurn() {
+        const res = await fetch('/api/end_turn', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ game_id: gameId })
+        });
+        await fetchGameState();
+    }
+    fetchGameState();
+    </script>
 </body>
 </html> 

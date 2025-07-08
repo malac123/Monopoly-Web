@@ -1,8 +1,8 @@
 import json
-import os
-from .property import Property
+from game_logic.property import Property
 
 class Space:
+    """Base class for all board spaces"""
     def __init__(self, name, space_type, **kwargs):
         self.name = name
         self.type = space_type
@@ -11,10 +11,8 @@ class Space:
             setattr(self, key, value)
 
 class GameBoard:
-    def __init__(self):
-        # Load board data from JSON file
-        board_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'board_data.json')
-        with open(board_path, encoding='utf-8') as f:
+    def __init__(self, board_data_path="assets/board_data.json"):
+        with open(board_data_path, encoding="utf-8") as f:
             board_data = json.load(f)
             self.spaces = []
             for data in board_data:

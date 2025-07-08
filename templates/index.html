@@ -11,16 +11,45 @@
             <h1>Monopoly Webspiel</h1>
         </header>
         <img src="{{ url_for('static', filename='img/IMG_0175.png') }}" alt="Wütender Mann" width="400"><br>
-        <br>
-        <button onclick="window.location.href='/setup';">Start The Game</button><br>
+        <form id="setup-form">
+            <h2>Spieler hinzufügen (2-8):</h2>
+            <div id="player-inputs"></div>
+            <button type="button" onclick="addPlayerInput()">+</button>
+            <button type="button" onclick="removePlayerInput()">-</button><br><br>
+            <button type="submit">Spiel starten</button>
+            <div id="setup-error" style="color:red;"></div>
+        </form>
+        <button id="continue-game-btn" style="display:none;" onclick="window.location.href='/game.html'">Zum aktuellen Spiel</button>
     </div>
-
     <div class="spacer"></div>
-    
     <div class="footer"> 
         <h2>Links:</h2>
-        <a href='https://github.com/malac123/Monopoly-Web.git' target="_blank" font_size="2px">View Git Page</a>
-        <a href='https://trello.com/b/9UAyXhOK/monopoly-web-server-version' target="_blank" font_size="2px">View Trello</a>
+        <a href='https://github.com/malac123/Monopoly-Web.git' target="_blank">View Git Page</a>
+        <a href='https://trello.com/b/9UAyXhOK/monopoly-web-server-version' target="_blank">View Trello</a>
     </div>  
+    <script src="{{ url_for('static', filename='game.js') }}"></script>
+    <script>
+        // Setup dynamic player input fields
+        let playerCount = 2;
+        function renderPlayerInputs() {
+            const container = document.getElementById('player-inputs');
+            container.innerHTML = '';
+            for (let i = 0; i < playerCount; i++) {
+                container.innerHTML += `<label for="player${i}">Spieler ${i+1} Name:</label>
+                    <input type="text" id="player${i}" name="player_names" maxlength="20"><br>`;
+            }
+        }
+        function addPlayerInput() {
+            if (playerCount < 8) { playerCount++; renderPlayerInputs(); }
+        }
+        function removePlayerInput() {
+            if (playerCount > 2) { playerCount--; renderPlayerInputs(); }
+        }
+        renderPlayerInputs();
+        // Show continue button if game_id in sessionStorage
+        if (sessionStorage.getItem('game_id')) {
+            document.getElementById('continue-game-btn').style.display = '';
+        }
+    </script>
 </body>
 </html>
