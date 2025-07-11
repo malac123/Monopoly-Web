@@ -18,6 +18,20 @@
         </div>
         <button onclick="window.location.href='/'">Zurück zum Start</button>
     </div>
+    <div class="footer">
+        <div class="footer-links">
+            <h3>Links: </h3>
+            <a href="https://github.com/malac123/Monopoly-Web.git" target="_blank" class="footer-link">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" style="width:24px;vertical-align:middle;margin-right:8px;">GitHub
+            </a>
+            <a href="https://trello.com/b/9UAyXhOK/monopoly-web-server-version" target="_blank" class="footer-link">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg" alt="Trello" style="width:24px;vertical-align:middle;margin-right:8px;">Trello
+            </a>
+        </div>
+    </div>
+  
+
+
     <script src="{{ url_for('static', filename='game.js') }}"></script>
     <script>
     // --- Monopoly Game UI Logic ---
@@ -115,5 +129,7 @@
     }
     fetchGameState();
     </script>
+
+
 </body>
 </html> 

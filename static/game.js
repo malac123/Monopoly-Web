@@ -1,5 +1,7 @@
 // static/game.js
 
+
+// Komplett von KI erzeugt, wir können kein JS obwohl wir es brauchen :()
 document.addEventListener('DOMContentLoaded', function() {
     const setupForm = document.getElementById('setup-form');
     if (setupForm) {
