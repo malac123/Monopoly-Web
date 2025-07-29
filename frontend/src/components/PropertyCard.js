@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Building, DollarSign, Home, ShoppingCart, X } from 'lucide-react';
 
-const PropertyCard = ({ property, currentPlayer, onBuy, onDecline }) => {
+const PropertyCard = ({ property, currentPlayer, onBuy, onDecline, disabled = false }) => {
   const canAfford = currentPlayer.money >= property.price;
   
   const getPropertyTypeIcon = (type) => {
@@ -117,20 +117,29 @@ const PropertyCard = ({ property, currentPlayer, onBuy, onDecline }) => {
         <div className="grid grid-cols-2 gap-3 pt-2">
           <Button
             onClick={onBuy}
-            disabled={!canAfford || currentPlayer.isBot}
+            disabled={!canAfford || currentPlayer.isBot || disabled}
             className={`h-12 ${
-              canAfford 
+              canAfford && !disabled
                 ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800' 
                 : 'bg-gray-400 cursor-not-allowed'
             } text-white font-semibold shadow-lg transition-all duration-200 hover:shadow-xl`}
           >
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            Buy Property
+            {disabled ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Processing...
+              </div>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Buy Property
+              </>
+            )}
           </Button>
           
           <Button
             onClick={onDecline}
-            disabled={currentPlayer.isBot}
+            disabled={currentPlayer.isBot || disabled}
             variant="outline"
             className="h-12 border-2 border-amber-400 text-amber-800 hover:bg-amber-100 font-semibold transition-all duration-200"
           >

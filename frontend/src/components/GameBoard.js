@@ -5,139 +5,199 @@ import { Badge } from './ui/badge';
 import PlayerPanel from './PlayerPanel';
 import PropertyCard from './PropertyCard';
 import DiceRoller from './DiceRoller';
-import { mockGameData, botDecisionEngine } from '../mock';
-import { Home, Car, Plane, Ship } from 'lucide-react';
+import { Home, Car, Plane, Ship, AlertCircle } from 'lucide-react';
+import { createGame, getProperties, rollDice, handlePropertyAction, endTurn, executeBotTurn, apiCall } from '../services/api';
 
 const PLAYER_ICONS = [Home, Car, Plane, Ship];
 
 const GameBoard = () => {
-  const [gameState, setGameState] = useState(mockGameData.initialGameState);
+  const [gameState, setGameState] = useState(null);
+  const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState(null);
-  const [gameMessage, setGameMessage] = useState("Welcome to Monopoly! Roll the dice to start.");
-  const [isRolling, setIsRolling] = useState(false);
+  const [gameMessage, setGameMessage] = useState("Starting new game...");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState(null);
 
-  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-
-  const movePlayer = (playerId, steps) => {
-    setGameState(prev => {
-      const newState = { ...prev };
-      const player = newState.players.find(p => p.id === playerId);
-      const newPosition = (player.position + steps) % mockGameData.properties.length;
-      
-      // Pass GO bonus
-      if (newPosition < player.position) {
-        player.money += 200;
-        setGameMessage(`${player.name} passed GO! Collected $200`);
-      }
-      
-      player.position = newPosition;
-      return newState;
-    });
-  };
-
-  const handleDiceRoll = (diceValue) => {
-    if (isRolling) return;
-    
-    setIsRolling(true);
-    movePlayer(currentPlayer.id, diceValue);
-    
-    setTimeout(() => {
-      const property = mockGameData.properties[gameState.players[gameState.currentPlayerIndex].position];
-      handleLandOnProperty(property);
-      setIsRolling(false);
-    }, 1000);
-  };
-
-  const handleLandOnProperty = (property) => {
-    if (property.type === 'special') {
-      setGameMessage(`${currentPlayer.name} landed on ${property.name}`);
-      endTurn();
-      return;
-    }
-
-    if (property.owner === null) {
-      setGameMessage(`${currentPlayer.name} can buy ${property.name} for $${property.price}`);
-      setSelectedProperty(property);
-    } else if (property.owner !== currentPlayer.id) {
-      const rent = property.rent;
-      payRent(currentPlayer.id, property.owner, rent);
-      setGameMessage(`${currentPlayer.name} paid $${rent} rent to ${gameState.players.find(p => p.id === property.owner)?.name}`);
-      setTimeout(endTurn, 2000);
-    } else {
-      setGameMessage(`${currentPlayer.name} owns this property`);
-      setTimeout(endTurn, 1500);
-    }
-  };
-
-  const buyProperty = (propertyId) => {
-    setGameState(prev => {
-      const newState = { ...prev };
-      const property = mockGameData.properties.find(p => p.id === propertyId);
-      const player = newState.players.find(p => p.id === currentPlayer.id);
-      
-      if (player.money >= property.price) {
-        player.money -= property.price;
-        property.owner = player.id;
-        player.properties.push(propertyId);
-        setGameMessage(`${player.name} bought ${property.name} for $${property.price}`);
-      }
-      
-      return newState;
-    });
-    setSelectedProperty(null);
-    setTimeout(endTurn, 2000);
-  };
-
-  const payRent = (payerId, receiverId, amount) => {
-    setGameState(prev => {
-      const newState = { ...prev };
-      const payer = newState.players.find(p => p.id === payerId);
-      const receiver = newState.players.find(p => p.id === receiverId);
-      
-      payer.money -= amount;
-      receiver.money += amount;
-      
-      return newState;
-    });
-  };
-
-  const endTurn = () => {
-    setGameState(prev => ({
-      ...prev,
-      currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
-    }));
-    setSelectedProperty(null);
-  };
-
-  // Bot AI Turn
+  // Initialize game
   useEffect(() => {
-    if (currentPlayer.isBot && !isRolling && !selectedProperty) {
-      const timer = setTimeout(() => {
-        const diceValue = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
-        handleDiceRoll(diceValue);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [currentPlayer, isRolling, selectedProperty]);
+    initializeGame();
+  }, []);
 
-  // Bot property decisions
-  useEffect(() => {
-    if (currentPlayer.isBot && selectedProperty) {
-      const timer = setTimeout(() => {
-        const decision = botDecisionEngine(currentPlayer, selectedProperty);
-        if (decision.action === 'buy') {
-          buyProperty(selectedProperty.id);
+  const initializeGame = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Create game and load properties
+      const [gameResponse, propertiesData] = await Promise.all([
+        apiCall(createGame, "You"),
+        apiCall(getProperties)
+      ]);
+
+      if (gameResponse.success) {
+        setGameState(gameResponse.game);
+        setProperties(propertiesData);
+        setGameMessage("Welcome to Monopoly! Roll the dice to start.");
+      } else {
+        throw new Error(gameResponse.error || 'Failed to create game');
+      }
+    } catch (err) {
+      setError(err.message);
+      setGameMessage("Failed to start game. Please refresh the page.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const currentPlayer = gameState?.players[gameState.currentPlayerIndex];
+
+  const handleDiceRoll = async () => {
+    if (isProcessing || !gameState) return;
+    
+    try {
+      setIsProcessing(true);
+      setError(null);
+
+      const response = await apiCall(rollDice, gameState.id);
+      
+      if (response.success) {
+        setGameState(response.gameState);
+        setGameMessage(response.message);
+        
+        // Handle next action
+        if (response.nextAction === "handle_property") {
+          // Find the property the player landed on
+          const currentPlayer = response.gameState.players[response.gameState.currentPlayerIndex];
+          const landedProperty = properties.find(p => p.id === currentPlayer.position + 1);
+          
+          if (landedProperty && landedProperty.type !== 'special' && landedProperty.owner === null) {
+            setSelectedProperty(landedProperty);
+          } else {
+            // Auto end turn for special spaces or owned properties
+            setTimeout(() => handleEndTurn(), 2000);
+          }
         } else {
-          setGameMessage(`${currentPlayer.name} declined to buy ${selectedProperty.name}`);
-          setSelectedProperty(null);
-          setTimeout(endTurn, 1500);
+          setTimeout(() => handleEndTurn(), 2000);
         }
-      }, 2000);
-      return () => clearTimeout(timer);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsProcessing(false);
     }
-  }, [currentPlayer, selectedProperty]);
+  };
+
+  const handlePropertyBuy = async () => {
+    if (!selectedProperty || !gameState || !currentPlayer) return;
+    
+    try {
+      setIsProcessing(true);
+      const response = await apiCall(
+        handlePropertyAction, 
+        gameState.id, 
+        "buy", 
+        currentPlayer.id, 
+        selectedProperty.id
+      );
+      
+      if (response.success) {
+        setGameState(response.gameState);
+        setGameMessage(response.message);
+        
+        // Update property ownership in local state
+        setProperties(prev => prev.map(prop => 
+          prop.id === selectedProperty.id 
+            ? { ...prop, owner: currentPlayer.id }
+            : prop
+        ));
+      }
+      
+      setSelectedProperty(null);
+      setTimeout(() => handleEndTurn(), 2000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePropertyDecline = async () => {
+    if (!selectedProperty || !gameState || !currentPlayer) return;
+    
+    try {
+      setIsProcessing(true);
+      const response = await apiCall(
+        handlePropertyAction, 
+        gameState.id, 
+        "decline", 
+        currentPlayer.id, 
+        selectedProperty.id
+      );
+      
+      if (response.success) {
+        setGameState(response.gameState);
+        setGameMessage(response.message);
+      }
+      
+      setSelectedProperty(null);
+      setTimeout(() => handleEndTurn(), 1500);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleEndTurn = async () => {
+    if (!gameState) return;
+    
+    try {
+      const response = await apiCall(endTurn, gameState.id);
+      
+      if (response.success) {
+        setGameState(response.gameState);
+        setGameMessage(response.message);
+        
+        // If next player is a bot, execute bot turn
+        if (response.nextAction === "bot_turn") {
+          setTimeout(() => handleBotTurn(), 1500);
+        }
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleBotTurn = async () => {
+    if (!gameState) return;
+    
+    try {
+      setGameMessage(`${currentPlayer?.name} is thinking...`);
+      const response = await apiCall(executeBotTurn, gameState.id);
+      
+      if (response.success) {
+        setGameState(response.gameState);
+        setGameMessage(response.message);
+        
+        // Update property ownership if bot bought something
+        const updatedProperties = properties.map(prop => {
+          const gameProperty = response.gameState.players
+            .find(p => p.properties.includes(prop.id));
+          return gameProperty ? { ...prop, owner: gameProperty.id } : prop;
+        });
+        setProperties(updatedProperties);
+        
+        setTimeout(() => handleEndTurn(), 2000);
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const renderBoard = () => {
+    if (!properties.length) return null;
+
     return (
       <div className="relative w-[600px] h-[600px] bg-gradient-to-br from-amber-50 to-yellow-100 border-8 border-amber-900 rounded-lg">
         {/* Center logo area */}
@@ -151,8 +211,8 @@ const GameBoard = () => {
         </div>
 
         {/* Properties around the board */}
-        {mockGameData.properties.map((property, index) => {
-          const angle = (index / mockGameData.properties.length) * 2 * Math.PI;
+        {properties.map((property, index) => {
+          const angle = (index / properties.length) * 2 * Math.PI;
           const radius = 240;
           const x = Math.cos(angle) * radius + 300;
           const y = Math.sin(angle) * radius + 300;
@@ -180,7 +240,7 @@ const GameBoard = () => {
               </Card>
 
               {/* Player pieces on properties */}
-              {gameState.players.map((player, playerIndex) => {
+              {gameState?.players.map((player, playerIndex) => {
                 if (player.position === index) {
                   const PlayerIcon = PLAYER_ICONS[playerIndex];
                   return (
@@ -201,6 +261,39 @@ const GameBoard = () => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50 flex items-center justify-center">
+        <Card className="p-8 bg-amber-50 border-amber-200">
+          <div className="text-center space-y-4">
+            <div className="w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-amber-900 font-medium">Starting new Monopoly game...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50 flex items-center justify-center">
+        <Card className="p-8 bg-red-50 border-red-200 max-w-md">
+          <div className="text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-red-600 mx-auto" />
+            <h3 className="text-lg font-bold text-red-900">Game Error</h3>
+            <p className="text-red-700">{error}</p>
+            <Button 
+              onClick={initializeGame}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Try Again
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50 p-4">
       <div className="max-w-7xl mx-auto">
@@ -220,14 +313,21 @@ const GameBoard = () => {
                 <div className="text-center space-y-3">
                   <p className="text-amber-900 font-medium">{gameMessage}</p>
                   
-                  {!currentPlayer.isBot && !isRolling && !selectedProperty && (
-                    <DiceRoller onRoll={handleDiceRoll} disabled={isRolling} />
+                  {!currentPlayer?.isBot && !isProcessing && !selectedProperty && (
+                    <DiceRoller onRoll={handleDiceRoll} disabled={isProcessing} />
                   )}
                   
-                  {currentPlayer.isBot && !selectedProperty && (
+                  {currentPlayer?.isBot && !selectedProperty && (
                     <Badge variant="outline" className="bg-amber-100 text-amber-800">
                       {currentPlayer.name} is thinking...
                     </Badge>
+                  )}
+
+                  {isProcessing && (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-amber-700">Processing...</span>
+                    </div>
                   )}
                 </div>
               </Card>
@@ -236,21 +336,21 @@ const GameBoard = () => {
 
           {/* Side Panel */}
           <div className="space-y-4">
-            <PlayerPanel 
-              players={gameState.players} 
-              currentPlayerId={currentPlayer.id}
-              properties={mockGameData.properties}
-            />
+            {gameState && (
+              <PlayerPanel 
+                players={gameState.players} 
+                currentPlayerId={currentPlayer?.id}
+                properties={properties}
+              />
+            )}
             
-            {selectedProperty && (
+            {selectedProperty && currentPlayer && (
               <PropertyCard
                 property={selectedProperty}
                 currentPlayer={currentPlayer}
-                onBuy={() => buyProperty(selectedProperty.id)}
-                onDecline={() => {
-                  setSelectedProperty(null);
-                  endTurn();
-                }}
+                onBuy={handlePropertyBuy}
+                onDecline={handlePropertyDecline}
+                disabled={isProcessing}
               />
             )}
           </div>
