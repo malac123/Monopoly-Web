@@ -57,6 +57,9 @@ async def get_status_checks():
 # Include the game router
 app.include_router(game_router)
 
+# Include the multiplayer router
+app.include_router(multiplayer_router)
+
 # Include the original API router
 app.include_router(api_router)
 
