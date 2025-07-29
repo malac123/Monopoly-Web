@@ -12,6 +12,7 @@ from datetime import datetime
 
 # Import game routes
 from game_routes import router as game_router
+from multiplayer_routes import router as multiplayer_router
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
